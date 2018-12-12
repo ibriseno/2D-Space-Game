@@ -13,6 +13,7 @@ public class PlayerControls implements KeyListener{
     private final int right;
     private final int left;
     private final int shoot;
+    private final int launch;
 
     /**
     private final int w; //up
@@ -26,7 +27,7 @@ public class PlayerControls implements KeyListener{
 
 
 
-    public PlayerControls(Player player, int up, int down, int left, int right, int shoot) {
+    public PlayerControls(Player player, int up, int down, int left, int right, int shoot, int launch) {
         //Controls for tank 1
         this.playerOne = player;
         this.up = up;
@@ -34,6 +35,7 @@ public class PlayerControls implements KeyListener{
         this.right = right;
         this.left = left;
         this.shoot = shoot;
+        this.launch = launch;
 
 /**
         //Controls for tank 2
@@ -72,6 +74,9 @@ public class PlayerControls implements KeyListener{
         }
         if(keyPressed == shoot){
             this.playerOne.toogleEnterPressed();
+        }
+        if(keyPressed == launch){
+            this.playerOne.toggleSpaceBarPressed();
         }
 
 
@@ -115,6 +120,9 @@ public class PlayerControls implements KeyListener{
         }
         if(keyReleased == shoot){
             this.playerOne.unToggleEnterPressed();
+        }
+        if(keyReleased == launch){
+            this.playerOne.unToggleSpacePressed();
         }
 
 

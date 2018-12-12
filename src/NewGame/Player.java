@@ -7,6 +7,11 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static javax.imageio.ImageIO.read;
 
@@ -17,13 +22,20 @@ public class Player extends GameWorld {
     private int tankHealth = 60;
     private int addHealth = 0;
     private int damage = 6;
-    private int tankLives = 3;
+    private int tankLives = 1;
+    private int playerScore = 0;
+    private int stationPoints = 50;
 
     private int vx;
     private int vy;
     private int angle;
     private int i = 0;
     private int counter = 0;
+
+    private boolean isDocked = false;
+    private boolean isLaunched;
+
+    private boolean endLevel;
 
     private BufferedImage img;
     private BufferedImage mainBullet;
@@ -35,7 +47,8 @@ public class Player extends GameWorld {
     private Bullet bullet;
 
     private MapWalls mapWalls;
-    private Collision tankCollision = new Collision();
+    private Collision gameCollision = new Collision();
+    private CountDownLatch myCount;
 
     private final int R = 2;
     private final int ROTATIONSPEED = 4;
@@ -48,7 +61,7 @@ public class Player extends GameWorld {
     private boolean RightPressed;
     private boolean LeftPressed;
     private boolean EnterPressed;
-    private boolean Ypressed;
+    private boolean SpacePressed;
 
     Player(BufferedImage img, int x, int y, int vx, int vy, int angle) {
 
@@ -59,13 +72,24 @@ public class Player extends GameWorld {
         this.angle = angle;
         this.img = img;
         try{
-            mainBullet = read(new File("Resources/kenney_spaceshooterextension/PNG/Sprites/Missiles/spaceMissiles_017.png"));
+            mainBullet = read(new File("Resources/spaceShooter/PNG/Sprites/Missiles/spaceMissiles_015.png"));
         }catch(Exception e){
 
         }
 
     }
 
+    public void CountDown(){
+        final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                System.out.println(i++);
+                if (i > 2)
+                    playerScore -= 1;
+                    timer.cancel();
+            }
+        }, 10, 1000000);
+    }
     public int getDamage(){
         return this.damage;
     }
@@ -95,9 +119,10 @@ public class Player extends GameWorld {
         this.EnterPressed = true;
     }
 
-    void toggleYPressed(){
-        this.Ypressed = true;
+    void toggleSpaceBarPressed(){
+        this.SpacePressed = true;
     }
+
 
 
     /*Untoggles*/
@@ -122,17 +147,22 @@ public class Player extends GameWorld {
     }
 
     void unToggleEnterPressed(){this.EnterPressed = false;}
-    void unToggleYPressed(){this.Ypressed = false;}
+    void unToggleSpacePressed(){this.SpacePressed = false;}
 
     public void update() {
 
+        gameCollision.playerVSstation(GameWorld.playerOne);
 
-        if (this.UpPressed) {
+
+        if (!isDocked) {
+
             this.moveForwards();
-        }
+
+
         if (this.DownPressed) {
             this.moveBackwards();
         }
+    }
 
         if (this.LeftPressed) {
             this.rotateLeft();
@@ -140,6 +170,16 @@ public class Player extends GameWorld {
         if (this.RightPressed) {
             this.rotateRight();
         }
+        if(isDocked){
+            if(playerScore > 0) {
+                CountDown();
+               // playerScore -= 1;
+            }
+           // playerScore += stationPoints;
+            if(this.SpacePressed){
+                this.launchPlayer();
+            }
+        }//playerScore = 0;
         if(this.EnterPressed) {
             //i++;
             if (i % fireRate == 0) {
@@ -210,7 +250,7 @@ public class Player extends GameWorld {
                         tankHealth = 60;
                     }
                 }
-                img =  read(new File("Resources/topdown-shooter/PNG/Hitman 1/hitman1_gun.png"));
+                img =  read(new File("Resources/spaceShooter/PNG/Sprites/Ships/spaceShips_002.png"));
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -262,7 +302,7 @@ public class Player extends GameWorld {
         else {
             power = false;
             Bullet newbullet;
-            newbullet = new Bullet(mainBullet,x+8,y+8, angle,6, 0, 0);
+            newbullet = new Bullet(mainBullet,x+20,y+20, angle,6, 0, 0);
             myBulletList.add(newbullet);
         }
 
@@ -270,6 +310,14 @@ public class Player extends GameWorld {
 
     public ArrayList<Bullet> getPowerList(){return powerList;}
     public ArrayList<Bullet> getPowerList2(){return powerList2;}
+
+    public void setX(int x){
+        this.x = x;
+    }
+
+    public void setY(int y){
+        this.y = y ;
+    }
 
     public int getX(){
         return x;
@@ -287,6 +335,13 @@ public class Player extends GameWorld {
         return this.img.getHeight();
     }
 
+    public int getPlayerScore(){
+        if(isLaunched) {
+            playerScore += stationPoints;
+        }
+        return playerScore;
+    }
+
     private void rotateLeft() {
         this.angle -= this.ROTATIONSPEED;
     }
@@ -296,8 +351,8 @@ public class Player extends GameWorld {
     }
 
     private void moveBackwards() {
-        vx = (int) Math.round(R * Math.cos(Math.toRadians(angle)));
-        vy = (int) Math.round(R * Math.sin(Math.toRadians(angle)));
+        vx = (int) Math.round(R * Math.cos(Math.toRadians(angle))) - 1;
+        vy = (int) Math.round(R * Math.sin(Math.toRadians(angle))) - 1;
         x -= vx;
         y -= vy;
         checkWorldBorder();
@@ -311,18 +366,42 @@ public class Player extends GameWorld {
         checkWorldBorder();
     }
 
+    private void launchPlayer() {
+        vx = (int) Math.round(R * Math.cos(Math.toRadians(angle)));
+        vy = (int) Math.round(R * Math.sin(Math.toRadians(angle)));
+        x += vx;
+        y += vy;
+        checkWorldBorder();
+        isDocked = false;
+        isLaunched = true;
+    }
+    public boolean getLaunched(){
+        return this.isLaunched;
+    }
+
+    public void setLaunched(boolean isLaunched){
+        this.isLaunched = isLaunched;
+    }
+
+    public boolean getDocked(){return this.isDocked;}
+
+    public void setDocked(boolean isDocked) {
+        this.isDocked = isDocked;
+    }
+
+
     private void checkWorldBorder(){
-        if (x < 0) {
-            //   x = 30;
+        if (x < -100) {
+               x = GameWorld.SCREEN_WIDTH + 100;
         }
-        if (x >= GameWorld.WORLD_WIDTH - 88) {
-            x = GameWorld.WORLD_WIDTH - 88 ;
+        if (x > GameWorld.SCREEN_WIDTH + 100) {
+            x = -95;
         }
-        if (y < 0) {
-            //    y = 40;
+        if (y < -80) {
+                y = GameWorld.SCREEN_HEIGHT + 75;
         }
-        if (y >= GameWorld.WORLD_HEIGHT - 80) {
-            y = GameWorld.WORLD_HEIGHT - 80 ;
+        if (y > GameWorld.SCREEN_HEIGHT + 100) {
+            y = -75;
         }
     }
 
@@ -342,6 +421,11 @@ public class Player extends GameWorld {
         }
     }
 
+    public Rectangle grabObject(){
+        return new Rectangle(x,y,img.getWidth(), img.getHeight());
+    }
+
+
     @Override
     public String toString() {
         return "x=" + x + ", y=" + y + ", angle=" + angle;
@@ -352,63 +436,38 @@ public class Player extends GameWorld {
      * @param g
      */
     void drawImage(Graphics2D g) {
+        String msg2 = "Deliver the Letter! Survive";
+        String msg = "Game Score: " + getPlayerScore();
+        Font small = new Font("Helvetica", Font.BOLD, 25);
+        FontMetrics metr = getFontMetrics(small);
+        g.setColor(Color.white);
+        g.setFont(small);
+        g.drawString(msg, (SCREEN_WIDTH - metr.stringWidth(msg)) - 1050 ,SCREEN_HEIGHT - 910);
+        g.drawString(msg2, (SCREEN_WIDTH - metr.stringWidth(msg2)) - 950 ,SCREEN_HEIGHT - 932);
+
         AffineTransform rotation = AffineTransform.getTranslateInstance(x, y);
         rotation.rotate(Math.toRadians(angle), this.img.getWidth()/2 , this.img.getHeight()/2);
         Graphics2D g2d = (Graphics2D) g;
         g2d.drawImage(this.img, rotation, null);
 
-        g.setColor(Color.blue);
+
+
+        g.setColor(Color.red);
         g.drawRect(this.x, this. y, img.getWidth(),img.getHeight());
 /**
  *Life counter for Tanks
  */
-
-        if (tankLives == 3) {
-            g.setColor(Color.blue);
-            g.fill(new Rectangle2D.Double(x + 30, y + 70, 10, 10));
-            g.setColor(Color.blue);
-            g.fill(new Rectangle2D.Double(x + 50, y + 70, 10, 10));
-            g.setColor(Color.blue);
-            g.fill(new Rectangle2D.Double(x + 70, y + 70, 10, 10));
-        }
-        if(tankLives == 2) {
-            g.setColor(Color.blue);
-            g.fill(new Rectangle2D.Double(x + 30, y + 70, 10, 10));
-            g.setColor(Color.blue);
-            g.fill(new Rectangle2D.Double(x + 50, y + 70, 10, 10));
-        }
         if(tankLives == 1) {
             g.setColor(Color.blue);
             g.fill(new Rectangle2D.Double(x + 30, y + 70, 10, 10));
         }
         if(tankLives == 0) {
             try {
-                mainBullet = read(new File("Resources/kenney_spaceshooterextension/PNG/Sprites/Effects/spaceEffects_014.png"));
+                mainBullet = read(new File("Resources/spaceShooter/PNG/Sprites/Effects/spaceEffects_014.png"));
                 if(GameWorld.playerOne.tankLives == 0 && tankHealth != 0){
-                    String msg = "Game Over! Player 2 Wins!";
-                    Font small = new Font("Helvetica", Font.BOLD, 100);
-                    FontMetrics metr = getFontMetrics(small);
-                    g.setColor(Color.white);
-                    g.setFont(small);
-                    g.drawString(msg, (SCREEN_WIDTH - metr.stringWidth(msg))+ 300 ,SCREEN_HEIGHT/2);
-                    GameWorld.playerOne.startGame(false);
-                }
-                /**
-                else if(GameWorld.t2.tankLives == 0 && tankHealth != 0){
-                    String msg = "Game Over! Player 1 Wins!";
-                    Font small = new Font("Helvetica", Font.BOLD, 100);
-                    FontMetrics metr = getFontMetrics(small);
-                    g.setColor(Color.white);
-                    g.setFont(small);
-                    g.drawString(msg, (SCREEN_WIDTH - metr.stringWidth(msg)) + 300 ,SCREEN_HEIGHT/2);
-                    GameWorld.t2.startGame(false);
 
                 }
-                 **/
 
-
-                //    GameWorld.t1.restartGame(g);
-                //    GameWorld.t2.restartGame(g);
             }catch(IOException e){
 
                 g.setColor(Color.green);
