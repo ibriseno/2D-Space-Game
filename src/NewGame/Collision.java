@@ -36,7 +36,7 @@ public class Collision {
             Rectangle asteroidBox = GameWorld.asteroidsArrayList.get(i).grabObject();
             if (player.getDocked() == false) {
                 if (asteroidBox.intersects(playerBox)) {
-                    player.hit(true, 3);
+                    player.hit(true, 30);
                     GameWorld.asteroidsArrayList.remove(i);
                     GameWorld.asteroidsArrayList.add(new Asteroids());
 
@@ -54,6 +54,7 @@ public class Collision {
                 player.setDocked(true);
                 player.setX(GameWorld.stationArrayList.get(i).getX() );
                 player.setY(GameWorld.stationArrayList.get(i).getY());
+             //   player.setAngle(GameWorld.stationArrayList.get(i).getAngle());
                 if(player.getLaunched()){
                     player.setDocked(false);
                     GameWorld.stationArrayList.remove(i);

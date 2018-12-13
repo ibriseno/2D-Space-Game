@@ -21,10 +21,10 @@ public class Player extends GameWorld {
     private int y;
     private int tankHealth = 60;
     private int addHealth = 0;
-    private int damage = 6;
+    private int damage = 30;
     private int tankLives = 1;
     private int playerScore = 0;
-    private int stationPoints = 50;
+    private int stationPoints = 1000;
 
     private int vx;
     private int vy;
@@ -84,11 +84,11 @@ public class Player extends GameWorld {
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
                 System.out.println(i++);
-                if (i > 2)
+                if (i > 10)
                     playerScore -= 1;
                     timer.cancel();
             }
-        }, 10, 1000000);
+        }, 100, 100000);
     }
     public int getDamage(){
         return this.damage;
@@ -319,6 +319,13 @@ public class Player extends GameWorld {
         this.y = y ;
     }
 
+    public void setAngle(int angle){
+        this.angle = angle;
+    }
+
+    public void getAngle(int angle){
+        this.angle = angle;
+    }
     public int getX(){
         return x;
     }
@@ -351,8 +358,8 @@ public class Player extends GameWorld {
     }
 
     private void moveBackwards() {
-        vx = (int) Math.round(R * Math.cos(Math.toRadians(angle))) - 1;
-        vy = (int) Math.round(R * Math.sin(Math.toRadians(angle))) - 1;
+        vx = (int) Math.round(R * Math.cos(Math.toRadians(angle))-1) ;
+        vy = (int) Math.round(R * Math.sin(Math.toRadians(angle))-1)  ;
         x -= vx;
         y -= vy;
         checkWorldBorder();
@@ -452,9 +459,12 @@ public class Player extends GameWorld {
 
 
 
+
         g.setColor(Color.red);
         g.drawRect(this.x, this. y, img.getWidth(),img.getHeight());
+
 /**
+ *
  *Life counter for Tanks
  */
         if(tankLives == 1) {
@@ -463,12 +473,19 @@ public class Player extends GameWorld {
         }
         if(tankLives == 0) {
             try {
-                mainBullet = read(new File("Resources/spaceShooter/PNG/Sprites/Effects/spaceEffects_014.png"));
+                img = read(new File("Resources/spaceShooter/PNG/Sprites/Effects/spaceEffects_014.png"));
                 if(GameWorld.playerOne.tankLives == 0 && tankHealth != 0){
+
+                    String newMsg = "You Lose! Game Score: " + getPlayerScore();
+                    String newMsg2 = "Try Again!";
+                    g.setColor(Color.white);
+                    g.setFont(small);
+                    g.drawString(newMsg, (SCREEN_WIDTH - metr.stringWidth(msg)) - 650  ,SCREEN_HEIGHT - 700);
+                    g.drawString(newMsg2, (SCREEN_WIDTH - metr.stringWidth(msg)) - 550 ,SCREEN_HEIGHT - 800);
 
                 }
 
-            }catch(IOException e){
+            }catch(Exception e){
 
                 g.setColor(Color.green);
                 g.fill(new Rectangle2D.Double(x +30,y + 50, tankHealth ,10));

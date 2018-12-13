@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import static javax.imageio.ImageIO.read;
 
 
-public class GameWorld extends JPanel{
+public class GameWorld extends JPanel {
 
 
     public static int w, h;
@@ -70,7 +70,7 @@ public class GameWorld extends JPanel{
     private BufferedImage enemyShip2;
     private BufferedImage enemyShip3;
     private BufferedImage bossShip;
-   private BufferedImage powerUpShip_1;
+    private BufferedImage powerUpShip_1;
 
     private BufferedImage gameWall;
     private BufferedImage mapTiles;
@@ -90,7 +90,7 @@ public class GameWorld extends JPanel{
     private BufferedImage startLogo;
 
     private static boolean gameStart = true;
-    private static boolean nextLevel = false;
+    private static boolean nextLevel;
 
 
     int move = 0;
@@ -106,47 +106,39 @@ public class GameWorld extends JPanel{
 
             while (true) {
                 if (gameStart == true) {
-                    if (nextLevel == false) {
-                        trex.playerOne.update();
-                        for (int i = 0; i < asteroidsArrayList.size(); i++) {
-                            asteroidsArrayList.get(i).update();
-                        }
-                        for (int i = 0; i < stationArrayList.size(); i++) {
-                            stationArrayList.get(i).update();
-                        }
 
-                        trex.repaint();
-                        updateCollisions();
-                        System.out.println("trex playerOne: " + trex.playerOne);
-                        //  System.out.println("trex t2: " + trex.t2);
-                        //  System.out.println("trex asteroid: " + trex.asteroidImg);
-                        // System.out.println(trex.t2);
-                        //   System.out.println("trex enemyPlayer: " + trex.enemyPlayer);
-                        Thread.sleep(1000 / 144);
-                    }else{
-                        trex.playerOne.update();
-                        for (int i = 0; i < asteroidsArrayList.size(); i++) {
-                            asteroidsArrayList.get(i).update();
-                        }
-                        for (int i = 0; i < stationArrayList.size(); i++) {
-                            stationArrayList.get(i).update();
-                        }
-
-                        trex.repaint();
-                        updateCollisions();
-                        Thread.sleep(1000 / 144);
+                    trex.playerOne.update();
+                    for (int i = 0; i < asteroidsArrayList.size(); i++) {
+                        asteroidsArrayList.get(i).update();
                     }
-                }else{
-                    break;
-                }
+                    for (int i = 0; i < stationArrayList.size(); i++) {
+                        stationArrayList.get(i).update();
+                    }
+
+                    trex.repaint();
+                    updateCollisions();
+                    System.out.println("trex playerOne: " + trex.playerOne);
+                    //  System.out.println("trex t2: " + trex.t2);
+                    //  System.out.println("trex asteroid: " + trex.asteroidImg);
+                    // System.out.println(trex.t2);
+                    //   System.out.println("trex enemyPlayer: " + trex.enemyPlayer);
+                    Thread.sleep(1000 / 144);
+
+            }else{
+                break;
             }
-
-        } catch (InterruptedException ignored) {
-
         }
+
+    } catch(Exception e){
+    }
+
+
 
 
     }
+
+
+
 
 
     public  static void updateCollisions(){
@@ -218,13 +210,25 @@ public class GameWorld extends JPanel{
             System.out.println(ex.getMessage());
         }
 
-        playerOne = new Player(tank, 80, 85, 0, 0, 0);
-        for(int i = 0; i < 5; ++i) {
-            asteroidsArrayList.add(asteroidImg = new Asteroids(asteroid, 100, 100));
-            //asteroidImg = new Asteroids(asteroid, 100, 100);
-        }
-        for(int i = 0; i < 3; i++){
-            stationArrayList.add(spaceStationImg = new Station(spaceStation));
+
+
+        if(stationArrayList.size() == 0){
+            playerOne = new Player(tank, 80, 85, 0, 0, 0);
+            for(int i = 0; i <= 3; ++i) {
+                asteroidsArrayList.add(asteroidImg = new Asteroids(asteroid, 100, 100));
+            }
+            for(int i = 0; i < 3; i++){
+                stationArrayList.add(spaceStationImg = new Station(spaceStation));
+            }
+        }else{
+            playerOne = new Player(tank, 80, 85, 0, 0, 0);
+            for(int i = 0; i <= 2; ++i) {
+                asteroidsArrayList.add(asteroidImg = new Asteroids(asteroid, 100, 100));
+                //asteroidImg = new Asteroids(asteroid, 100, 100);
+            }
+            for(int i = 0; i < 3; i++){
+                stationArrayList.add(spaceStationImg = new Station(spaceStation));
+            }
         }
      //   enemyPlayer = new Enemy(enemyShip, 700, 700, 0, 0, 0);
     //    enemyPlayer2 = new Enemy(enemyShip2, 700, 500, 0, 0, 0);
@@ -389,11 +393,12 @@ public class GameWorld extends JPanel{
          g2.drawImage(bufferImgOne, 0, 0, this);
       //  g2.drawImage(bufferImgTwo, 640, 0, this);
 
-        if(nextLevel == true){
-            drawGameLevel2();
-        }else{
+
+
+
             drawGame();
-        }
+
+
 
 
         /**
@@ -458,25 +463,14 @@ public class GameWorld extends JPanel{
 
     }
     public void endLevel(){
-        if(playerOne.getX() > 1200){
+        if(stationArrayList.size() == 0){
             nextLevel = true;
         }else{
             nextLevel = false;
         }
     }
-    public void drawGameLevel2(){
 
-            drawBackGroundImage();
-            drawBullet();
-            this.playerOne.drawImage(buffer);
-            for(int i = 0; i < asteroidsArrayList.size(); i++){
-                asteroidsArrayList.get(i).drawImage(buffer);
-            }
-            for(int i = 0; i< stationArrayList.size(); i++){
-                stationArrayList.get(i).drawImage(buffer);
-            }
-            //    drawPowerUp();
-        }
+
 
     /**
      * This section draws Background and Bullets
@@ -485,8 +479,9 @@ public class GameWorld extends JPanel{
 
         drawBackGroundImage();
         drawBullet();
-        drawPowerUp();
         endLevel();
+      //  drawPowerUp();
+      //  endLevel();
         this.playerOne.drawImage(buffer);
         for(int i = 0; i < asteroidsArrayList.size(); i++){
             asteroidsArrayList.get(i).drawImage(buffer);
