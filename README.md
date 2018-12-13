@@ -40,4 +40,8 @@ JVM: OpenJDK 64-Bit Server VM by JetBrains s.r.o
 Windows 10 10.0
 Java SDK Version 10.0.2
 
-
+JAR File
+----------------------------------------------------------------
+JAR File is created by does not display anything. The IDE plays the game with no issues but the jar file appears
+to only be blank screen. This is the same issue that I encountered with the previous game where the Jar file
+had the same behavior as this one. 
