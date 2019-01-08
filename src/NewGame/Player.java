@@ -20,8 +20,6 @@ public class Player extends GameWorld {
     private int x;
     private int y;
     private int tankHealth = 60;
-    private int addHealth = 0;
-    private int damage = 30;
     private int tankLives = 1;
     private int playerScore = 0;
     private int stationPoints = 1000;
@@ -35,26 +33,20 @@ public class Player extends GameWorld {
     private boolean isDocked = false;
     private boolean isLaunched;
 
-    private boolean endLevel;
-
     private BufferedImage img;
     private BufferedImage mainBullet;
     private BufferedImage rocketImg;
 
     private ArrayList<Bullet> myBulletList = new ArrayList<>();
     private ArrayList<Bullet> powerList = new ArrayList<>();
-    private ArrayList<Bullet> powerList2 = new ArrayList<>();
-    private Bullet bullet;
 
-    private MapWalls mapWalls;
     private Collision gameCollision = new Collision();
-    private CountDownLatch myCount;
+
 
     private final int R = 2;
     private final int ROTATIONSPEED = 4;
     private final int fireRate = 50;
     private static boolean power;
-    private static boolean power2;
 
     private boolean UpPressed;
     private boolean DownPressed;
@@ -90,10 +82,6 @@ public class Player extends GameWorld {
             }
         }, 100, 100000);
     }
-    public int getDamage(){
-        return this.damage;
-    }
-
     /*Toggles*/
     void toggleUpPressed() {
         this.UpPressed = true;
@@ -192,28 +180,9 @@ public class Player extends GameWorld {
 
         for (int i = 0; i < getMyBulletList().size(); i++){
             getMyBulletList().get(i).update();
-//            tankCollison.bulletVSgamewall(t2.getBulletlist().get(i), t2, i);
-//            tankCollison.bulletVSgamewall(t1.getBulletlist().get(i), t1, i);
+
         }
 
-        for (int i = 0; i < getMyBulletList().size(); i++){
-            getMyBulletList().get(i).update();
-//            tankCollison.bulletVSgamewall(t2.getBulletlist().get(i), t2, i);
-//            tankCollison.bulletVSgamewall(t1.getBulletlist().get(i), t1, i);
-        }
-    /**
-        for (int i = 0; i < getPowerList().size(); ++i){
-            getPowerList().get(i).update();
-//            tankCollison.bulletVSgamewall(t2.getPowerList().get(i), t2, i);
-//            tankCollison.bulletVSgamewall(t1.getPowerList().get(i), t1, i);
-        }
-
-        for (int i = 0; i < getPowerList().size(); ++i){
-            getPowerList().get(i).update();
-//            tankCollison.bulletVSgamewall(t2.getPowerList().get(i), t2, i);
-//            tankCollison.bulletVSgamewall(t1.getPowerList().get(i), t1, i);
-        }
-         **/
 
     }
 
@@ -258,21 +227,6 @@ public class Player extends GameWorld {
         }
     }
 
-    public void getHealth(boolean isHealth) {
-        if (isHealth) {
-            // int i = 0;
-            if (((tankHealth-damage) | (tankHealth + addHealth)) >= 60) {
-                addHealth = 0;
-                tankHealth -=damage;
-            }
-            if ((tankHealth-damage) <= 54) {
-                addHealth += 6;
-                tankHealth += addHealth;
-                System.out.println("Added +6 Health! " + tankHealth);
-            }
-
-        }
-    }
 
     /**
      * This section has all the actions of the tank
@@ -282,21 +236,11 @@ public class Player extends GameWorld {
         return this.myBulletList;
     }
 
-    public void setPower(boolean isPower){
-        power = isPower;
-    }
-
-
     public void shoot() {
         if (power && counter < 5){
             Bullet powerBullet;
             powerBullet = new Bullet(rocketImg,x,y, angle,20, 0, 0);
             powerList.add(powerBullet);
-       //     System.out.println("Power Bullet Count Tank 1: " + GameWorld.t1.powerList.size());
-
-         //   powerList2.add(powerBullet);
-        //    System.out.println("Power Bullet Count Tank 2: " + GameWorld.t2.powerList2.size());
-
             counter++;
         }
         else {
@@ -307,9 +251,6 @@ public class Player extends GameWorld {
         }
 
     }
-
-    public ArrayList<Bullet> getPowerList(){return powerList;}
-    public ArrayList<Bullet> getPowerList2(){return powerList2;}
 
     public void setX(int x){
         this.x = x;
@@ -409,22 +350,6 @@ public class Player extends GameWorld {
         }
         if (y > GameWorld.SCREEN_HEIGHT + 100) {
             y = -75;
-        }
-    }
-
-    public void Collision( boolean isXCollidable, boolean isYCollidable, boolean rightCollidable, boolean leftCollidable, int pos){
-
-        if (isXCollidable){
-            x = pos - getWidth();
-        }
-        if (isYCollidable){
-            y = pos - getHeight();
-        }
-        if (rightCollidable){
-            y = pos;
-        }
-        if (leftCollidable){
-            x = pos;
         }
     }
 

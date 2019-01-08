@@ -6,29 +6,12 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Random;
 
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import static NewGame.GameWorld.SCREEN_HEIGHT;
-import static NewGame.GameWorld.SCREEN_WIDTH;
 
 public class Station extends GameWorld {
 
     private int x, y, vx, vy, angle, width, height;
-    private boolean visible;
 
     private final int R = 0;
-
-    private boolean isStation = true;
 
     private BufferedImage stationImg;
 
@@ -54,10 +37,6 @@ public class Station extends GameWorld {
 
     public ArrayList<Bullet> getStationArrayList(){
         return this.stationArrayList;
-    }
-
-    public int getAngle(){
-        return angle;
     }
 
     public int getX(){
