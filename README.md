@@ -1,6 +1,4 @@
-# csc413-SecondGame
 
-## Student Name : Ivan Briseno
 
 Second Game Documentation:
 --------------------------------------------------------------
